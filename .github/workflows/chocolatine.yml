@@ -27,13 +27,7 @@ jobs:
 
     - name: Coding style command
       run: check.sh $(pwd) $(pwd)
-
-    - name: Checks if there is any error
-      run: |
-        file_size=$(stat -c%s "coding-style-reports.log")
-        if [ "$file_size" -gt 0 ]; then
-          exit 1
-        fi
+      
     - name: Generate error annotations
       run: |
         file=coding-style-reports.log
@@ -41,6 +35,13 @@ jobs:
           steps=$(echo $line | tr ":" "\n")
             echo "::error ${steps[2]} coding style error: file=${steps[0]},line=${steps[1]}::${steps[3]}"
         done < "$file"
+  
+    - name: Checks if there is any error
+      run: |
+        file_size=$(stat -c%s "coding-style-reports.log")
+        if [ "$file_size" -gt 0 ]; then
+          exit 1
+        fi
 
   check_program_compilation:
     needs: check_coding_style
