@@ -37,7 +37,7 @@ jobs:
             type=${steps[2]}
             line_num=${steps[1]}
             file_name=${steps[0]}
-            echo "::error $type coding style error: $file_name#L$line_num::$text::"
+            echo "::error $type::$type coding style error: $file_name#L$line_num::$text::"
         done < "$file"
   
     - name: Checks if there is any error
