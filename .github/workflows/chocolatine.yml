@@ -33,10 +33,11 @@ jobs:
         file=coding-style-reports.log
         while IFS= read -r line; do
           steps=$(echo $line | tr ":" "\n")
-            text= "Error"
-            file_name=${steps[0]}
+            text=${steps[3]}
+            type=${steps[2]}
             line_num=${steps[1]}
-            echo "::error file=$file_name,line=10,col=5::$text"
+            file_name=${steps[0]}
+            echo "::error::$type coding style error: $file_name#L$line_num::$text"
         done < "$file"
   
     - name: Checks if there is any error
