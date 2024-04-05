@@ -37,7 +37,7 @@ jobs:
             type=${steps[2]}
             line_num=${steps[1]}
             file_name=${steps[0]}
-            echo "::error $line::"
+            echo "::error::$line"
         done < "$file"
   
     - name: Checks if there is any error
