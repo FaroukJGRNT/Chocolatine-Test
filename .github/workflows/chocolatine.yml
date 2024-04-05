@@ -33,7 +33,7 @@ jobs:
         file=coding-style-reports.log
         while IFS= read -r line; do
           steps=$(echo $line | tr ":" "\n")
-            text=${steps[3]}
+            text= "Error"
             file_name=${steps[0]}
             line_num=${steps[1]}
             echo "::error file=$file_name,line=10,col=5::$text"
