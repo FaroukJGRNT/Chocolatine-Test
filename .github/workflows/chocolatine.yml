@@ -32,9 +32,15 @@ jobs:
       run: |
         file_size=$(stat -c%s "coding-style-reports.log")
         if [ "$file_size" -gt 0 ]; then
-          cat "coding-style-reports.log"
           exit 1
         fi
+    - name: Generate error annotations
+      run: |
+        file=coding-style-reports.log
+        while IFS= read -r line; do
+          steps=$(echo $line | tr ":" "\n")
+            echo "::error ${steps[2]} coding style error: file=${steps[0]},line=${steps[1]}::${steps[3]}"
+        done < "$file"
 
   check_program_compilation:
     needs: check_coding_style
