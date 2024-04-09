@@ -13,8 +13,84 @@ env:
   EXECUTABLES: "binary"
 
 jobs:
+
+  check_coding_style:
+    if: github.event.repository.name != 'EpitechPromo2028/B-DOP-200-COT-2-1-chocolatine-farouk.okanla'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/epitech/coding-style-checker:latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Coding style command
+      run: check.sh $(pwd) $(pwd)
+      
+    - name: Generate error annotations
+      run: |
+        file=coding-style-reports.log
+        while IFS= read -r line; do
+          steps=$(echo $line | tr ":" "\n")
+            text=${steps[3]}
+            type=${steps[2]}
+            line_num=${steps[1]}
+            file_name=${steps[0]}
+            echo "::error::$line"
+        done < "$file"
+  
+    - name: Checks if there is any error
+      run: |
+        file_size=$(stat -c%s "coding-style-reports.log")
+        if [ "$file_size" -gt 0 ]; then
+          exit 1
+        fi
+
+  check_program_compilation:
+    needs: check_coding_style
+    timeout-minutes: 2
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker 
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+    
+    - name: Checks make
+      run: make
+
+    - name: Clean
+      run: make clean
+
+    - name: Check all executables
+      run: |
+        IFS=', ' read -r -a executables <<< "$EXECUTABLES"
+        for executable in "${executables[@]}"; do
+            if [ ! -x "$executable" ]; then
+                exit 1
+            fi
+        done
+
+  run_tests:
+    needs: check_program_compilation
+    timeout-minutes: 2
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker 
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+    
+    - name: Running tests
+      run: make tests_run
+
   push_to_mirror:
-    #needs: run_tests
+    needs: run_tests
     runs-on: ubuntu-latest
     steps:
 
